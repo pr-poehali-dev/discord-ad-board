@@ -65,8 +65,9 @@ export const AddAdForm = ({ onSubmit, t }: AddAdFormProps) => {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-[#5865F2] hover:bg-[#4752C4] text-white">
-          {t("addListing")}
+        <Button className="bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm px-3 py-2 whitespace-nowrap">
+          <span className="hidden sm:inline">{t("addListing")}</span>
+          <span className="sm:hidden">{t("addShort")}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] dark:bg-gray-800 dark:border-gray-700">

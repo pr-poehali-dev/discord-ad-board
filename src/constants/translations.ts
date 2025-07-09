@@ -3,6 +3,7 @@ import { Translations } from "@/types";
 export const translations: Translations = {
   title: { en: "Discord Ads Board", ru: "Discord Ads Board" },
   addListing: { en: "Add Listing", ru: "Добавить объявление" },
+  addShort: { en: "Add", ru: "Добавить" },
   add: { en: "Add", ru: "Добавить" },
   newListing: { en: "New Listing", ru: "Новое объявление" },
   titleLabel: { en: "Title", ru: "Заголовок" },
