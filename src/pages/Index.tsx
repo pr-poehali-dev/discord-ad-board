@@ -333,7 +333,7 @@ const Index = () => {
                     <span className="sm:hidden">{t("add")}</span>
                   </Button>
                 </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] w-[95vw] max-w-[95vw] sm:w-full sm:max-w-[500px] dark:bg-gray-800">
+                <DialogContent className="sm:max-w-[500px] w-[95vw] max-w-[95vw] sm:w-full sm:max-w-[500px] dark:bg-gray-800">
                 <DialogHeader>
                   <DialogTitle className="dark:text-gray-100">{t("newListing")}</DialogTitle>
                 </DialogHeader>
