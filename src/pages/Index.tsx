@@ -41,10 +41,8 @@ interface Advertisement {
   serverLink: string;
   members: string;
   price: string;
-  currency: string;
   category: string;
   createdAt: string;
-  views: number;
 }
 
 interface Translations {
@@ -127,11 +125,9 @@ const Index = () => {
       serverName: "GameHub",
       serverLink: "https://discord.gg/gamehub",
       members: "15,000",
-      price: "5,000",
-      currency: "₽",
+      price: "5,000 ₽",
       category: "Игры",
       createdAt: "2 часа назад",
-      views: 245,
     },
     {
       id: 2,
@@ -141,11 +137,9 @@ const Index = () => {
       serverName: "CryptoTalk",
       serverLink: "https://discord.gg/cryptotalk",
       members: "8,500",
-      price: "350",
-      currency: "$",
+      price: "3,500 ₽",
       category: "Финансы",
       createdAt: "4 часа назад",
-      views: 156,
     },
     {
       id: 3,
@@ -155,17 +149,14 @@ const Index = () => {
       serverName: "DevSpace",
       serverLink: "https://discord.gg/devspace",
       members: "12,200",
-      price: "250",
-      currency: "€",
+      price: "4,200 ₽",
       category: "IT",
       createdAt: "6 часов назад",
-      views: 89,
     },
   ]);
 
   // Фильтры
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedCurrency, setSelectedCurrency] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("новые");
 
   const categories = ["IT", "Игры", "Финансы", "Музыка", "Образование"];
@@ -180,7 +171,6 @@ const Index = () => {
 
   const resetFilters = () => {
     setSelectedCategories([]);
-    setSelectedCurrency("");
     setSortBy("новые");
   };
 
@@ -199,25 +189,17 @@ const Index = () => {
 
   const filteredAndSortedAds = advertisements
     .filter((ad) => {
-      // Фильтр по категориям
-      if (selectedCategories.length > 0) {
-        const adCategories = ad.category.split(",").map((cat) => cat.trim());
-        const categoryMatch = selectedCategories.some((selectedCat) =>
-          adCategories.some(
-            (adCat) =>
-              adCat.toLowerCase().includes(selectedCat.toLowerCase()) ||
-              selectedCat.toLowerCase().includes(adCat.toLowerCase()),
-          ),
-        );
-        if (!categoryMatch) return false;
-      }
+      if (selectedCategories.length === 0) return true;
 
-      // Фильтр по валюте
-      if (selectedCurrency && selectedCurrency !== "") {
-        return ad.currency === selectedCurrency;
-      }
-
-      return true;
+      // Проверяем, содержит ли категория объявления хотя бы одну из выбранных категорий
+      const adCategories = ad.category.split(",").map((cat) => cat.trim());
+      return selectedCategories.some((selectedCat) =>
+        adCategories.some(
+          (adCat) =>
+            adCat.toLowerCase().includes(selectedCat.toLowerCase()) ||
+            selectedCat.toLowerCase().includes(adCat.toLowerCase()),
+        ),
+      );
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -225,21 +207,6 @@ const Index = () => {
           return parsePrice(a.price) - parsePrice(b.price);
         case "дорогие":
           return parsePrice(b.price) - parsePrice(a.price);
-        case "валюта-руб":
-          if (a.currency !== b.currency) {
-            return a.currency === "₽" ? -1 : 1;
-          }
-          return 0;
-        case "валюта-доллар":
-          if (a.currency !== b.currency) {
-            return a.currency === "$" ? -1 : 1;
-          }
-          return 0;
-        case "валюта-евро":
-          if (a.currency !== b.currency) {
-            return a.currency === "€" ? -1 : 1;
-          }
-          return 0;
         case "новые":
         default:
           return getTimeScore(a.createdAt) - getTimeScore(b.createdAt);
@@ -297,11 +264,9 @@ const Index = () => {
       serverName: serverInfo.name,
       serverLink: formData.serverLink,
       members: serverInfo.members,
-      price: formData.price,
-      currency: formData.currency,
+      price: `${formData.price} ${formData.currency}`,
       category: formData.category,
       createdAt: t("justNow"),
-      views: 0,
     };
 
     setAdvertisements([newAd, ...advertisements]);
@@ -552,37 +517,6 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Валюта
-                </label>
-                <Select
-                  value={selectedCurrency}
-                  onValueChange={setSelectedCurrency}
-                >
-                  <SelectTrigger className="w-full sm:w-[120px] dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600">
-                    <SelectValue placeholder="Все" />
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                    <SelectItem value="" className="dark:text-gray-100">
-                      Все
-                    </SelectItem>
-                    <SelectItem value="₽" className="dark:text-gray-100">
-                      ₽ (Рубль)
-                    </SelectItem>
-                    <SelectItem value="$" className="dark:text-gray-100">
-                      $ (Доллар)
-                    </SelectItem>
-                    <SelectItem value="€" className="dark:text-gray-100">
-                      € (Евро)
-                    </SelectItem>
-                    <SelectItem value="₴" className="dark:text-gray-100">
-                      ₴ (Гривна)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("sorting")}
                 </label>
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -598,24 +532,6 @@ const Index = () => {
                     </SelectItem>
                     <SelectItem value="дорогие" className="dark:text-gray-100">
                       {t("expensive")}
-                    </SelectItem>
-                    <SelectItem
-                      value="валюта-руб"
-                      className="dark:text-gray-100"
-                    >
-                      По валюте: ₽
-                    </SelectItem>
-                    <SelectItem
-                      value="валюта-доллар"
-                      className="dark:text-gray-100"
-                    >
-                      По валюте: $
-                    </SelectItem>
-                    <SelectItem
-                      value="валюта-евро"
-                      className="dark:text-gray-100"
-                    >
-                      По валюте: €
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -653,10 +569,7 @@ const Index = () => {
                   </div>
                   <div className="flex items-center justify-between sm:block sm:text-right sm:ml-4">
                     <div className="text-xl sm:text-2xl font-bold text-[#5865F2] mb-1">
-                      {parseInt(
-                        ad.price.replace(/[^0-9]/g, ""),
-                      ).toLocaleString()}{" "}
-                      {ad.currency}
+                      {ad.price}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       {ad.createdAt}
@@ -688,12 +601,6 @@ const Index = () => {
                       <Icon name="Tag" size={16} className="text-gray-400" />
                       <span className="text-sm text-gray-600 dark:text-gray-300">
                         {ad.category}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Icon name="Eye" size={16} className="text-gray-400" />
-                      <span className="text-sm text-gray-600 dark:text-gray-300">
-                        {ad.views}
                       </span>
                     </div>
                   </div>
