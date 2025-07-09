@@ -17,6 +17,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Icon from "@/components/ui/icon";
 
 interface Advertisement {
@@ -74,6 +81,7 @@ const Index = () => {
     serverName: "",
     members: "",
     price: "",
+    currency: "₽",
     category: "",
   });
 
@@ -82,6 +90,7 @@ const Index = () => {
     const newAd: Advertisement = {
       id: advertisements.length + 1,
       ...formData,
+      price: `${formData.price} ${formData.currency}`,
       createdAt: "Только что",
     };
     setAdvertisements([newAd, ...advertisements]);
@@ -91,6 +100,7 @@ const Index = () => {
       serverName: "",
       members: "",
       price: "",
+      currency: "₽",
       category: "",
     });
     setIsDialogOpen(false);
@@ -179,15 +189,34 @@ const Index = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="price">Цена</Label>
-                      <Input
-                        id="price"
-                        placeholder="5,000 ₽"
-                        value={formData.price}
-                        onChange={(e) =>
-                          setFormData({ ...formData, price: e.target.value })
-                        }
-                        required
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="price"
+                          placeholder="5,000"
+                          value={formData.price}
+                          onChange={(e) =>
+                            setFormData({ ...formData, price: e.target.value })
+                          }
+                          required
+                          className="flex-1"
+                        />
+                        <Select
+                          value={formData.currency}
+                          onValueChange={(value) =>
+                            setFormData({ ...formData, currency: value })
+                          }
+                        >
+                          <SelectTrigger className="w-20">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="₽">₽</SelectItem>
+                            <SelectItem value="$">$</SelectItem>
+                            <SelectItem value="€">€</SelectItem>
+                            <SelectItem value="₴">₴</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="category">Категория</Label>
