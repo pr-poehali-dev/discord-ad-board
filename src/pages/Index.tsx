@@ -26,12 +26,12 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import Icon from "@/components/ui/icon";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 
 interface Advertisement {
   id: number;
@@ -315,22 +315,15 @@ const Index = () => {
             <div className="flex items-center gap-2">
               {/* Language and Theme Controls */}
               <div className="flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <Icon name="Globe" size={14} className="mr-1" />
-                      {language === "en" ? "EN" : "RU"}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setLanguage("en")}>
-                      {t("english")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLanguage("ru")}>
-                      {t("russian")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => setLanguage(language === "en" ? "ru" : "en")}
+                >
+                  <Icon name="Globe" size={14} className="mr-1" />
+                  {language === "en" ? "EN" : "RU"}
+                </Button>
 
                 <Button
                   variant="outline"
