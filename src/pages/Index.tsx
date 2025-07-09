@@ -653,7 +653,9 @@ const Index = () => {
                   </div>
                   <div className="flex items-center justify-between sm:block sm:text-right sm:ml-4">
                     <div className="text-xl sm:text-2xl font-bold text-[#5865F2] mb-1">
-                      {parseInt(ad.price).toLocaleString()}
+                      {parseInt(
+                        ad.price.replace(/[^0-9]/g, ""),
+                      ).toLocaleString()}{" "}
                       {ad.currency}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
