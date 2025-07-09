@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icon";
 import { Language, useTranslation } from "@/lib/translations";
 import { AddListingForm } from "./AddListingForm";
-import { Advertisement, FormData } from "@/types/advertisement";
+import { FormData } from "@/types/advertisement";
 
 interface HeaderProps {
   language: Language;
