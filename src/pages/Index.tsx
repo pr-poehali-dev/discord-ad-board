@@ -110,22 +110,23 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+        <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <Icon name="MessageSquare" size={32} className="text-[#5865F2]" />
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
                 Discord Ads Board
               </h1>
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#5865F2] hover:bg-[#4752C4] text-white">
-                  <Icon name="Plus" size={20} className="mr-2" />
-                  Добавить объявление
+                <Button className="bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm sm:text-base px-3 sm:px-4">
+                  <Icon name="Plus" size={16} className="mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Добавить объявление</span>
+                  <span className="sm:hidden">Добавить</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
+              <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-0">
                 <DialogHeader>
                   <DialogTitle>Новое объявление</DialogTitle>
                 </DialogHeader>
@@ -157,7 +158,7 @@ const Index = () => {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="serverName">Название сервера</Label>
                       <Input
@@ -186,7 +187,7 @@ const Index = () => {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="price">Цена</Label>
                       <div className="flex gap-2">
@@ -245,34 +246,34 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="space-y-6">
+      <main className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+        <div className="space-y-4 sm:space-y-6">
           {advertisements.map((ad) => (
             <Card
               key={ad.id}
               className="hover:shadow-lg transition-shadow duration-200"
             >
-              <CardHeader>
-                <div className="flex items-start justify-between">
+              <CardHeader className="pb-3 sm:pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex-1">
-                    <CardTitle className="text-xl text-gray-900 mb-2">
+                    <CardTitle className="text-lg sm:text-xl text-gray-900 mb-2">
                       {ad.title}
                     </CardTitle>
-                    <CardDescription className="text-gray-600 text-base leading-relaxed">
+                    <CardDescription className="text-gray-600 text-sm sm:text-base leading-relaxed">
                       {ad.description}
                     </CardDescription>
                   </div>
-                  <div className="text-right ml-4">
-                    <div className="text-2xl font-bold text-[#5865F2] mb-1">
+                  <div className="flex items-center justify-between sm:block sm:text-right sm:ml-4">
+                    <div className="text-xl sm:text-2xl font-bold text-[#5865F2] mb-1">
                       {ad.price}
                     </div>
                     <div className="text-sm text-gray-500">{ad.createdAt}</div>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-6">
+              <CardContent className="pt-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                     <div className="flex items-center space-x-2">
                       <Icon name="Server" size={16} className="text-gray-400" />
                       <span className="text-sm font-medium text-gray-900">
@@ -294,7 +295,7 @@ const Index = () => {
                   </div>
                   <Button
                     variant="outline"
-                    className="border-[#5865F2] text-[#5865F2] hover:bg-[#5865F2] hover:text-white"
+                    className="border-[#5865F2] text-[#5865F2] hover:bg-[#5865F2] hover:text-white w-full sm:w-auto"
                   >
                     <Icon name="MessageCircle" size={16} className="mr-2" />
                     Связаться
