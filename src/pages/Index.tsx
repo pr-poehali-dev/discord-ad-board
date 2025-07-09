@@ -171,7 +171,14 @@ const Index = () => {
 
   const resetFilters = () => {
     setSelectedCategories([]);
+    setSelectedCurrency("");
     setSortBy("новые");
+  };
+
+  const incrementViews = (adId: number) => {
+    setAdvertisements((prev) =>
+      prev.map((ad) => (ad.id === adId ? { ...ad, views: ad.views + 1 } : ad)),
+    );
   };
 
   const parsePrice = (priceStr: string) => {
@@ -560,7 +567,10 @@ const Index = () => {
               <CardHeader className="pb-3 sm:pb-6">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex-1">
-                    <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-gray-100 mb-2">
+                    <CardTitle
+                      className="text-lg sm:text-xl text-gray-900 dark:text-gray-100 mb-2 cursor-pointer hover:text-[#5865F2] transition-colors"
+                      onClick={() => incrementViews(ad.id)}
+                    >
                       {ad.title}
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
@@ -603,11 +613,20 @@ const Index = () => {
                         {ad.category}
                       </span>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <Icon name="Eye" size={16} className="text-gray-400" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                        {ad.views}
+                      </span>
+                    </div>
                   </div>
                   <Button
                     variant="outline"
                     className="border-[#5865F2] text-[#5865F2] hover:bg-[#5865F2] hover:text-white w-full sm:w-auto dark:border-[#5865F2] dark:hover:bg-[#5865F2]"
-                    onClick={() => window.open(ad.serverLink, "_blank")}
+                    onClick={() => {
+                      incrementViews(ad.id);
+                      window.open(ad.serverLink, "_blank");
+                    }}
                   >
                     <Icon name="MessageCircle" size={16} className="mr-2" />
                     {t("contact")}
