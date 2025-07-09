@@ -281,7 +281,8 @@ const Index = () => {
       serverName: serverInfo.name,
       serverLink: formData.serverLink,
       members: serverInfo.members,
-      price: `${formData.price} ${formData.currency}`,
+      price: formData.price,
+      currency: formData.currency,
       category: formData.category,
       createdAt: t("justNow"),
     };
