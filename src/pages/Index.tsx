@@ -41,7 +41,6 @@ interface Advertisement {
   serverLink: string;
   members: string;
   price: string;
-  currency: string;
   category: string;
   createdAt: string;
 }
@@ -101,8 +100,6 @@ const translations: Translations = {
   darkTheme: { en: "Dark", ru: "Тёмная" },
   english: { en: "English", ru: "Английский" },
   russian: { en: "Russian", ru: "Русский" },
-  currency: { en: "Currency", ru: "Валюта" },
-  allCurrencies: { en: "All Currencies", ru: "Все валюты" },
 };
 
 const Index = () => {
@@ -128,8 +125,7 @@ const Index = () => {
       serverName: "GameHub",
       serverLink: "https://discord.gg/gamehub",
       members: "15,000",
-      price: "5,000",
-      currency: "₽",
+      price: "5,000 ₽",
       category: "Игры",
       createdAt: "2 часа назад",
     },
@@ -141,8 +137,7 @@ const Index = () => {
       serverName: "CryptoTalk",
       serverLink: "https://discord.gg/cryptotalk",
       members: "8,500",
-      price: "3,500",
-      currency: "₽",
+      price: "3,500 ₽",
       category: "Финансы",
       createdAt: "4 часа назад",
     },
@@ -154,8 +149,7 @@ const Index = () => {
       serverName: "DevSpace",
       serverLink: "https://discord.gg/devspace",
       members: "12,200",
-      price: "4,200",
-      currency: "₽",
+      price: "4,200 ₽",
       category: "IT",
       createdAt: "6 часов назад",
     },
@@ -163,11 +157,9 @@ const Index = () => {
 
   // Фильтры
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedCurrency, setSelectedCurrency] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("новые");
 
   const categories = ["IT", "Игры", "Финансы", "Музыка", "Образование"];
-  const currencies = ["₽", "$", "€", "₴"];
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -179,7 +171,6 @@ const Index = () => {
 
   const resetFilters = () => {
     setSelectedCategories([]);
-    setSelectedCurrency("");
     setSortBy("новые");
   };
 
@@ -198,25 +189,17 @@ const Index = () => {
 
   const filteredAndSortedAds = advertisements
     .filter((ad) => {
-      // Фильтр по категориям
-      if (selectedCategories.length > 0) {
-        const adCategories = ad.category.split(",").map((cat) => cat.trim());
-        const categoryMatch = selectedCategories.some((selectedCat) =>
-          adCategories.some(
-            (adCat) =>
-              adCat.toLowerCase().includes(selectedCat.toLowerCase()) ||
-              selectedCat.toLowerCase().includes(adCat.toLowerCase()),
-          ),
-        );
-        if (!categoryMatch) return false;
-      }
+      if (selectedCategories.length === 0) return true;
 
-      // Фильтр по валюте
-      if (selectedCurrency && selectedCurrency !== "") {
-        return ad.currency === selectedCurrency;
-      }
-
-      return true;
+      // Проверяем, содержит ли категория объявления хотя бы одну из выбранных категорий
+      const adCategories = ad.category.split(",").map((cat) => cat.trim());
+      return selectedCategories.some((selectedCat) =>
+        adCategories.some(
+          (adCat) =>
+            adCat.toLowerCase().includes(selectedCat.toLowerCase()) ||
+            selectedCat.toLowerCase().includes(adCat.toLowerCase()),
+        ),
+      );
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -534,34 +517,6 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t("currency")}
-                </label>
-                <Select
-                  value={selectedCurrency}
-                  onValueChange={setSelectedCurrency}
-                >
-                  <SelectTrigger className="w-full sm:w-[120px] dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600">
-                    <SelectValue placeholder={t("allCurrencies")} />
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
-                    <SelectItem value="" className="dark:text-gray-100">
-                      {t("allCurrencies")}
-                    </SelectItem>
-                    {currencies.map((currency) => (
-                      <SelectItem
-                        key={currency}
-                        value={currency}
-                        className="dark:text-gray-100"
-                      >
-                        {currency}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("sorting")}
                 </label>
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -614,7 +569,7 @@ const Index = () => {
                   </div>
                   <div className="flex items-center justify-between sm:block sm:text-right sm:ml-4">
                     <div className="text-xl sm:text-2xl font-bold text-[#5865F2] mb-1">
-                      {ad.price} {ad.currency}
+                      {ad.price}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       {ad.createdAt}
