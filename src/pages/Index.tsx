@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import Icon from "@/components/ui/icon";
 
 interface Advertisement {
@@ -39,6 +40,95 @@ interface Advertisement {
 }
 
 const Index = () => {
+  const [advertisements, setAdvertisements] = useState<Advertisement[]>([
+    {
+      id: 1,
+      title: "Реклама в игровом сообществе",
+      description:
+        "Активное сообщество геймеров. Высокий охват среди целевой аудитории 18-25 лет.",
+      serverName: "GameHub",
+      serverLink: "https://discord.gg/gamehub",
+      members: "15,000",
+      price: "5,000 ₽",
+      category: "Игры",
+      createdAt: "2 часа назад",
+    },
+    {
+      id: 2,
+      title: "Криптовалютный канал",
+      description:
+        "Аудитория инвесторов и трейдеров. Ежедневная активность 2000+ участников.",
+      serverName: "CryptoTalk",
+      serverLink: "https://discord.gg/cryptotalk",
+      members: "8,500",
+      price: "3,500 ₽",
+      category: "Финансы",
+      createdAt: "4 часа назад",
+    },
+    {
+      id: 3,
+      title: "IT-сообщество разработчиков",
+      description:
+        "Профессиональная аудитория программистов и дизайнеров. Качественный трафик.",
+      serverName: "DevSpace",
+      serverLink: "https://discord.gg/devspace",
+      members: "12,200",
+      price: "4,200 ₽",
+      category: "IT",
+      createdAt: "6 часов назад",
+    },
+  ]);
+
+  // Фильтры
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<string>("новые");
+
+  const categories = ["IT", "Игры", "Финансы", "Музыка", "Образование"];
+
+  const handleCategoryToggle = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category],
+    );
+  };
+
+  const resetFilters = () => {
+    setSelectedCategories([]);
+    setSortBy("новые");
+  };
+
+  const parsePrice = (priceStr: string) => {
+    const numStr = priceStr.replace(/[^0-9]/g, "");
+    return parseInt(numStr) || 0;
+  };
+
+  const getTimeScore = (createdAt: string) => {
+    if (createdAt.includes("час")) {
+      const hours = parseInt(createdAt.split(" ")[0]);
+      return hours;
+    }
+    return 0;
+  };
+
+  const filteredAndSortedAds = advertisements
+    .filter(
+      (ad) =>
+        selectedCategories.length === 0 ||
+        selectedCategories.includes(ad.category),
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "дешёвые":
+          return parsePrice(a.price) - parsePrice(b.price);
+        case "дорогие":
+          return parsePrice(b.price) - parsePrice(a.price);
+        case "новые":
+        default:
+          return getTimeScore(a.createdAt) - getTimeScore(b.createdAt);
+      }
+    });
+
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([
     {
       id: 1,
@@ -268,8 +358,62 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                Категории
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <label
+                    key={category}
+                    className="flex items-center space-x-2 cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={selectedCategories.includes(category)}
+                      onCheckedChange={() => handleCategoryToggle(category)}
+                    />
+                    <span className="text-sm text-gray-600">{category}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Сортировка
+                </label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="новые">Сначала новые</SelectItem>
+                    <SelectItem value="дешёвые">Сначала дешёвые</SelectItem>
+                    <SelectItem value="дорогие">Сначала дорогие</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  onClick={resetFilters}
+                  className="w-full sm:w-auto"
+                >
+                  <Icon name="RotateCcw" size={16} className="mr-2" />
+                  Сброс
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-4 sm:space-y-6">
-          {advertisements.map((ad) => (
+          {filteredAndSortedAds.map((ad) => (
             <Card
               key={ad.id}
               className="hover:shadow-lg transition-shadow duration-200"
