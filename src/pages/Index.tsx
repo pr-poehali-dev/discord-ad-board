@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,6 +26,12 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import Icon from "@/components/ui/icon";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Advertisement {
   id: number;
@@ -39,7 +45,77 @@ interface Advertisement {
   createdAt: string;
 }
 
+interface Translations {
+  [key: string]: {
+    en: string;
+    ru: string;
+  };
+}
+
+const translations: Translations = {
+  title: { en: "Discord Ads Board", ru: "Discord Ads Board" },
+  addListing: { en: "Add Listing", ru: "Добавить объявление" },
+  add: { en: "Add", ru: "Добавить" },
+  newListing: { en: "New Listing", ru: "Новое объявление" },
+  titleLabel: { en: "Title", ru: "Заголовок" },
+  titlePlaceholder: {
+    en: "Brief description of the offer",
+    ru: "Краткое описание предложения",
+  },
+  descriptionLabel: { en: "Description", ru: "Описание" },
+  descriptionPlaceholder: {
+    en: "Detailed description of the advertising offer",
+    ru: "Подробное описание рекламного предложения",
+  },
+  serverLinkLabel: {
+    en: "Discord Server Link",
+    ru: "Ссылка на Discord сервер",
+  },
+  serverLinkPlaceholder: {
+    en: "https://discord.gg/server",
+    ru: "https://discord.gg/server",
+  },
+  categoryLabel: { en: "Category", ru: "Категория" },
+  categoryPlaceholder: { en: "Gaming, IT, Finance", ru: "Игры, IT, Финансы" },
+  priceLabel: { en: "Price", ru: "Цена" },
+  publish: { en: "Publish", ru: "Опубликовать" },
+  categories: { en: "Categories", ru: "Категории" },
+  sorting: { en: "Sorting", ru: "Сортировка" },
+  newest: { en: "Newest First", ru: "Сначала новые" },
+  cheapest: { en: "Cheapest First", ru: "Сначала дешёвые" },
+  expensive: { en: "Most Expensive", ru: "Сначала дорогие" },
+  reset: { en: "Reset", ru: "Сброс" },
+  contact: { en: "Contact", ru: "Связаться" },
+  hoursAgo: { en: "hours ago", ru: "часов назад" },
+  justNow: { en: "Just now", ru: "Только что" },
+  linkError: {
+    en: "Please enter a valid Discord link",
+    ru: "Пожалуйста, укажите корректную Discord ссылку",
+  },
+  gameCategory: { en: "Gaming", ru: "Игры" },
+  financeCategory: { en: "Finance", ru: "Финансы" },
+  language: { en: "Language", ru: "Язык" },
+  theme: { en: "Theme", ru: "Тема" },
+  lightTheme: { en: "Light", ru: "Светлая" },
+  darkTheme: { en: "Dark", ru: "Тёмная" },
+  english: { en: "English", ru: "Английский" },
+  russian: { en: "Russian", ru: "Русский" },
+};
+
 const Index = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [language, setLanguage] = useState<"en" | "ru">("en");
+
+  const t = (key: string) => translations[key]?.[language] || key;
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([
     {
       id: 1,
@@ -175,7 +251,7 @@ const Index = () => {
     e.preventDefault();
 
     if (!validateDiscordLink(formData.serverLink)) {
-      setLinkError("Пожалуйста, укажите корректную Discord ссылку");
+      setLinkError(t("linkError"));
       return;
     }
 
@@ -190,7 +266,7 @@ const Index = () => {
       members: serverInfo.members,
       price: `${formData.price} ${formData.currency}`,
       category: formData.category,
-      createdAt: "Только что",
+      createdAt: t("justNow"),
     };
 
     setAdvertisements([newAd, ...advertisements]);
@@ -207,47 +283,84 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-2 sm:space-x-3">
               <Icon name="MessageSquare" size={32} className="text-[#5865F2]" />
-              <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                Discord Ads Board
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {t("title")}
               </h1>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm sm:text-base px-3 sm:px-4">
-                  <Icon name="Plus" size={16} className="mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Добавить объявление</span>
-                  <span className="sm:hidden">Добавить</span>
+            <div className="flex items-center gap-2">
+              {/* Language and Theme Controls */}
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <Icon name="Globe" size={14} className="mr-1" />
+                      {language === 'en' ? 'EN' : 'RU'}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setLanguage('en')}>
+                      {t("english")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLanguage('ru')}>
+                      {t("russian")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className="text-xs"
+                >
+                  <Icon name={isDarkMode ? "Sun" : "Moon"} size={14} className="mr-1" />
+                  {isDarkMode ? t("lightTheme") : t("darkTheme")}
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] w-[95vw] max-w-[95vw] sm:w-full sm:max-w-[500px]">
+              </div>
+              
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm sm:text-base px-3 sm:px-4">
+                    <Icon name="Plus" size={16} className="mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">{t("addListing")}</span>
+                    <span className="sm:hidden">{t("add")}</span>
+                  </Button>
+                </DialogTrigger>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+              <DialogContent className="sm:max-w-[500px] w-[95vw] max-w-[95vw] sm:w-full sm:max-w-[500px] dark:bg-gray-800">
                 <DialogHeader>
-                  <DialogTitle>Новое объявление</DialogTitle>
+                  <DialogTitle className="dark:text-gray-100">{t("newListing")}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title">Заголовок</Label>
+                    <Label htmlFor="title" className="dark:text-gray-200">{t("titleLabel")}</Label>
                     <Input
                       id="title"
-                      placeholder="Краткое описание предложения"
+                      placeholder={t("titlePlaceholder")}
                       value={formData.title}
                       onChange={(e) =>
                         setFormData({ ...formData, title: e.target.value })
                       }
                       required
+                      className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Описание</Label>
+                    <Label htmlFor="description" className="dark:text-gray-200">{t("descriptionLabel")}</Label>
                     <Textarea
                       id="description"
-                      placeholder="Подробное описание рекламного предложения"
+                      placeholder={t("descriptionPlaceholder")}
                       value={formData.description}
                       onChange={(e) =>
                         setFormData({
@@ -256,13 +369,14 @@ const Index = () => {
                         })
                       }
                       required
+                      className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="serverLink">Ссылка на Discord сервер</Label>
+                    <Label htmlFor="serverLink" className="dark:text-gray-200">{t("serverLinkLabel")}</Label>
                     <Input
                       id="serverLink"
-                      placeholder="https://discord.gg/server"
+                      placeholder={t("serverLinkPlaceholder")}
                       value={formData.serverLink}
                       onChange={(e) => {
                         setFormData({
@@ -272,26 +386,27 @@ const Index = () => {
                         setLinkError("");
                       }}
                       required
-                      className={linkError ? "border-red-500" : ""}
+                      className={`dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 ${linkError ? "border-red-500" : ""}`}
                     />
                     {linkError && (
                       <p className="text-sm text-red-500 mt-1">{linkError}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="category">Категория</Label>
+                    <Label htmlFor="category" className="dark:text-gray-200">{t("categoryLabel")}</Label>
                     <Input
                       id="category"
-                      placeholder="Игры, IT, Финансы"
+                      placeholder={t("categoryPlaceholder")}
                       value={formData.category}
                       onChange={(e) =>
                         setFormData({ ...formData, category: e.target.value })
                       }
                       required
+                      className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="price">Цена</Label>
+                    <Label htmlFor="price" className="dark:text-gray-200">{t("priceLabel")}</Label>
                     <div className="flex gap-2">
                       <Input
                         id="price"
@@ -301,7 +416,7 @@ const Index = () => {
                           setFormData({ ...formData, price: e.target.value })
                         }
                         required
-                        className="flex-1"
+                        className="flex-1 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                       />
                       <Select
                         value={formData.currency}
@@ -309,14 +424,14 @@ const Index = () => {
                           setFormData({ ...formData, currency: value })
                         }
                       >
-                        <SelectTrigger className="w-20">
+                        <SelectTrigger className="w-20 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="₽">₽</SelectItem>
-                          <SelectItem value="$">$</SelectItem>
-                          <SelectItem value="€">€</SelectItem>
-                          <SelectItem value="₴">₴</SelectItem>
+                        <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                          <SelectItem value="₽" className="dark:text-gray-100">₽</SelectItem>
+                          <SelectItem value="$" className="dark:text-gray-100">$</SelectItem>
+                          <SelectItem value="€" className="dark:text-gray-100">€</SelectItem>
+                          <SelectItem value="₴" className="dark:text-gray-100">₴</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -325,7 +440,7 @@ const Index = () => {
                     type="submit"
                     className="w-full bg-[#5865F2] hover:bg-[#4752C4]"
                   >
-                    Опубликовать
+                    {t("publish")}
                   </Button>
                 </form>
               </DialogContent>
@@ -337,11 +452,11 @@ const Index = () => {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">
-                Категории
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t("categories")}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
@@ -353,7 +468,7 @@ const Index = () => {
                       checked={selectedCategories.includes(category)}
                       onCheckedChange={() => handleCategoryToggle(category)}
                     />
-                    <span className="text-sm text-gray-600">{category}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{category}</span>
                   </label>
                 ))}
               </div>
@@ -361,17 +476,17 @@ const Index = () => {
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Сортировка
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("sorting")}
                 </label>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[180px] dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="новые">Сначала новые</SelectItem>
-                    <SelectItem value="дешёвые">Сначала дешёвые</SelectItem>
-                    <SelectItem value="дорогие">Сначала дорогие</SelectItem>
+                  <SelectContent className="dark:bg-gray-700 dark:border-gray-600">
+                    <SelectItem value="новые" className="dark:text-gray-100">{t("newest")}</SelectItem>
+                    <SelectItem value="дешёвые" className="dark:text-gray-100">{t("cheapest")}</SelectItem>
+                    <SelectItem value="дорогие" className="dark:text-gray-100">{t("expensive")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -380,10 +495,10 @@ const Index = () => {
                 <Button
                   variant="outline"
                   onClick={resetFilters}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600"
                 >
                   <Icon name="RotateCcw" size={16} className="mr-2" />
-                  Сброс
+                  {t("reset")}
                 </Button>
               </div>
             </div>
@@ -394,15 +509,15 @@ const Index = () => {
           {filteredAndSortedAds.map((ad) => (
             <Card
               key={ad.id}
-              className="hover:shadow-lg transition-shadow duration-200"
+              className="hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700"
             >
               <CardHeader className="pb-3 sm:pb-6">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex-1">
-                    <CardTitle className="text-lg sm:text-xl text-gray-900 mb-2">
+                    <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-gray-100 mb-2">
                       {ad.title}
                     </CardTitle>
-                    <CardDescription className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                    <CardDescription className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
                       {ad.description}
                     </CardDescription>
                   </div>
@@ -410,7 +525,7 @@ const Index = () => {
                     <div className="text-xl sm:text-2xl font-bold text-[#5865F2] mb-1">
                       {ad.price}
                     </div>
-                    <div className="text-sm text-gray-500">{ad.createdAt}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{ad.createdAt}</div>
                   </div>
                 </div>
               </CardHeader>
@@ -423,31 +538,31 @@ const Index = () => {
                         href={ad.serverLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-medium text-gray-900 hover:text-[#5865F2] transition-colors cursor-pointer"
+                        className="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-[#5865F2] transition-colors cursor-pointer"
                       >
                         {ad.serverName}
                       </a>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Icon name="Users" size={16} className="text-gray-400" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
                         {ad.members}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Icon name="Tag" size={16} className="text-gray-400" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
                         {ad.category}
                       </span>
                     </div>
                   </div>
                   <Button
                     variant="outline"
-                    className="border-[#5865F2] text-[#5865F2] hover:bg-[#5865F2] hover:text-white w-full sm:w-auto"
+                    className="border-[#5865F2] text-[#5865F2] hover:bg-[#5865F2] hover:text-white w-full sm:w-auto dark:border-[#5865F2] dark:hover:bg-[#5865F2]"
                     onClick={() => window.open(ad.serverLink, "_blank")}
                   >
                     <Icon name="MessageCircle" size={16} className="mr-2" />
-                    Связаться
+                    {t("contact")}
                   </Button>
                 </div>
               </CardContent>
