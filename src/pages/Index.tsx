@@ -112,11 +112,19 @@ const Index = () => {
   };
 
   const filteredAndSortedAds = advertisements
-    .filter(
-      (ad) =>
-        selectedCategories.length === 0 ||
-        selectedCategories.includes(ad.category),
-    )
+    .filter((ad) => {
+      if (selectedCategories.length === 0) return true;
+
+      // Проверяем, содержит ли категория объявления хотя бы одну из выбранных категорий
+      const adCategories = ad.category.split(",").map((cat) => cat.trim());
+      return selectedCategories.some((selectedCat) =>
+        adCategories.some(
+          (adCat) =>
+            adCat.toLowerCase().includes(selectedCat.toLowerCase()) ||
+            selectedCat.toLowerCase().includes(adCat.toLowerCase()),
+        ),
+      );
+    })
     .sort((a, b) => {
       switch (sortBy) {
         case "дешёвые":
