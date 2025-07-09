@@ -141,33 +141,68 @@ const Index = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    serverName: "",
     serverLink: "",
-    members: "",
     price: "",
     currency: "₽",
     category: "",
   });
 
+  const [linkError, setLinkError] = useState("");
+
+  const validateDiscordLink = (link: string): boolean => {
+    const discordRegex = /^https:\/\/discord\.(gg|com\/invite)\/[a-zA-Z0-9]+$/;
+    return discordRegex.test(link);
+  };
+
+  const extractServerInfo = (link: string) => {
+    // Мок данных - в реальном приложении здесь был бы API запрос
+    const mockServers: { [key: string]: { name: string; members: string } } = {
+      gamehub: { name: "GameHub", members: "15,000" },
+      cryptotalk: { name: "CryptoTalk", members: "8,500" },
+      devspace: { name: "DevSpace", members: "12,200" },
+    };
+
+    const inviteCode = link.split("/").pop()?.toLowerCase() || "";
+    return (
+      mockServers[inviteCode] || {
+        name: `Server_${inviteCode}`,
+        members: "1,000",
+      }
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateDiscordLink(formData.serverLink)) {
+      setLinkError("Пожалуйста, укажите корректную Discord ссылку");
+      return;
+    }
+
+    const serverInfo = extractServerInfo(formData.serverLink);
+
     const newAd: Advertisement = {
       id: advertisements.length + 1,
-      ...formData,
+      title: formData.title,
+      description: formData.description,
+      serverName: serverInfo.name,
+      serverLink: formData.serverLink,
+      members: serverInfo.members,
       price: `${formData.price} ${formData.currency}`,
+      category: formData.category,
       createdAt: "Только что",
     };
+
     setAdvertisements([newAd, ...advertisements]);
     setFormData({
       title: "",
       description: "",
-      serverName: "",
       serverLink: "",
-      members: "",
       price: "",
       currency: "₽",
       category: "",
     });
+    setLinkError("");
     setIsDialogOpen(false);
   };
 
@@ -191,7 +226,7 @@ const Index = () => {
                   <span className="sm:hidden">Добавить</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-0">
+              <DialogContent className="sm:max-w-[500px] w-[95vw] max-w-[95vw] sm:w-full sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>Новое объявление</DialogTitle>
                 </DialogHeader>
@@ -223,63 +258,37 @@ const Index = () => {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="serverName">Название сервера</Label>
-                      <Input
-                        id="serverName"
-                        placeholder="Имя Discord сервера"
-                        value={formData.serverName}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            serverName: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="serverLink">Ссылка на сервер</Label>
-                      <Input
-                        id="serverLink"
-                        placeholder="https://discord.gg/server"
-                        value={formData.serverLink}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            serverLink: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="serverLink">Ссылка на Discord сервер</Label>
+                    <Input
+                      id="serverLink"
+                      placeholder="https://discord.gg/server"
+                      value={formData.serverLink}
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          serverLink: e.target.value,
+                        });
+                        setLinkError("");
+                      }}
+                      required
+                      className={linkError ? "border-red-500" : ""}
+                    />
+                    {linkError && (
+                      <p className="text-sm text-red-500 mt-1">{linkError}</p>
+                    )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="members">Участники</Label>
-                      <Input
-                        id="members"
-                        placeholder="10,000"
-                        value={formData.members}
-                        onChange={(e) =>
-                          setFormData({ ...formData, members: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Категория</Label>
-                      <Input
-                        id="category"
-                        placeholder="Игры, IT, Финансы"
-                        value={formData.category}
-                        onChange={(e) =>
-                          setFormData({ ...formData, category: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Категория</Label>
+                    <Input
+                      id="category"
+                      placeholder="Игры, IT, Финансы"
+                      value={formData.category}
+                      onChange={(e) =>
+                        setFormData({ ...formData, category: e.target.value })
+                      }
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price">Цена</Label>
