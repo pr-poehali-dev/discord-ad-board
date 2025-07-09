@@ -31,6 +31,7 @@ interface Advertisement {
   title: string;
   description: string;
   serverName: string;
+  serverLink: string;
   members: string;
   price: string;
   category: string;
@@ -45,6 +46,7 @@ const Index = () => {
       description:
         "Активное сообщество геймеров. Высокий охват среди целевой аудитории 18-25 лет.",
       serverName: "GameHub",
+      serverLink: "https://discord.gg/gamehub",
       members: "15,000",
       price: "5,000 ₽",
       category: "Игры",
@@ -56,6 +58,7 @@ const Index = () => {
       description:
         "Аудитория инвесторов и трейдеров. Ежедневная активность 2000+ участников.",
       serverName: "CryptoTalk",
+      serverLink: "https://discord.gg/cryptotalk",
       members: "8,500",
       price: "3,500 ₽",
       category: "Финансы",
@@ -67,6 +70,7 @@ const Index = () => {
       description:
         "Профессиональная аудитория программистов и дизайнеров. Качественный трафик.",
       serverName: "DevSpace",
+      serverLink: "https://discord.gg/devspace",
       members: "12,200",
       price: "4,200 ₽",
       category: "IT",
@@ -79,6 +83,7 @@ const Index = () => {
     title: "",
     description: "",
     serverName: "",
+    serverLink: "",
     members: "",
     price: "",
     currency: "₽",
@@ -98,6 +103,7 @@ const Index = () => {
       title: "",
       description: "",
       serverName: "",
+      serverLink: "",
       members: "",
       price: "",
       currency: "₽",
@@ -175,6 +181,23 @@ const Index = () => {
                       />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="serverLink">Ссылка на сервер</Label>
+                      <Input
+                        id="serverLink"
+                        placeholder="https://discord.gg/server"
+                        value={formData.serverLink}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            serverLink: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
                       <Label htmlFor="members">Участники</Label>
                       <Input
                         id="members"
@@ -185,39 +208,6 @@ const Index = () => {
                         }
                         required
                       />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Цена</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="price"
-                          placeholder="5,000"
-                          value={formData.price}
-                          onChange={(e) =>
-                            setFormData({ ...formData, price: e.target.value })
-                          }
-                          required
-                          className="flex-1"
-                        />
-                        <Select
-                          value={formData.currency}
-                          onValueChange={(value) =>
-                            setFormData({ ...formData, currency: value })
-                          }
-                        >
-                          <SelectTrigger className="w-20">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="₽">₽</SelectItem>
-                            <SelectItem value="$">$</SelectItem>
-                            <SelectItem value="€">€</SelectItem>
-                            <SelectItem value="₴">₴</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="category">Категория</Label>
@@ -230,6 +220,37 @@ const Index = () => {
                         }
                         required
                       />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Цена</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="price"
+                        placeholder="5,000"
+                        value={formData.price}
+                        onChange={(e) =>
+                          setFormData({ ...formData, price: e.target.value })
+                        }
+                        required
+                        className="flex-1"
+                      />
+                      <Select
+                        value={formData.currency}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, currency: value })
+                        }
+                      >
+                        <SelectTrigger className="w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="₽">₽</SelectItem>
+                          <SelectItem value="$">$</SelectItem>
+                          <SelectItem value="€">€</SelectItem>
+                          <SelectItem value="₴">₴</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <Button
@@ -276,9 +297,14 @@ const Index = () => {
                   <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                     <div className="flex items-center space-x-2">
                       <Icon name="Server" size={16} className="text-gray-400" />
-                      <span className="text-sm font-medium text-gray-900">
+                      <a
+                        href={ad.serverLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-gray-900 hover:text-[#5865F2] transition-colors cursor-pointer"
+                      >
                         {ad.serverName}
-                      </span>
+                      </a>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Icon name="Users" size={16} className="text-gray-400" />
@@ -296,6 +322,7 @@ const Index = () => {
                   <Button
                     variant="outline"
                     className="border-[#5865F2] text-[#5865F2] hover:bg-[#5865F2] hover:text-white w-full sm:w-auto"
+                    onClick={() => window.open(ad.serverLink, "_blank")}
                   >
                     <Icon name="MessageCircle" size={16} className="mr-2" />
                     Связаться
