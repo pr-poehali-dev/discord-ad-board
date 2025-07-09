@@ -100,6 +100,7 @@ const translations: Translations = {
   darkTheme: { en: "Dark", ru: "Тёмная" },
   english: { en: "English", ru: "Английский" },
   russian: { en: "Russian", ru: "Русский" },
+  currencies: { en: "Currency", ru: "Валюта" },
 };
 
 const Index = () => {
@@ -157,9 +158,11 @@ const Index = () => {
 
   // Фильтры
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("новые");
 
   const categories = ["IT", "Игры", "Финансы", "Музыка", "Образование"];
+  const currencies = ["₽", "$", "€", "₴"];
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -167,6 +170,10 @@ const Index = () => {
         ? prev.filter((c) => c !== category)
         : [...prev, category],
     );
+  };
+
+  const handleCurrencyChange = (currency: string) => {
+    setSelectedCurrency(currency === selectedCurrency ? "" : currency);
   };
 
   const resetFilters = () => {
@@ -196,17 +203,25 @@ const Index = () => {
 
   const filteredAndSortedAds = advertisements
     .filter((ad) => {
-      if (selectedCategories.length === 0) return true;
+      // Фильтр по категориям
+      if (selectedCategories.length > 0) {
+        const adCategories = ad.category.split(",").map((cat) => cat.trim());
+        const categoryMatch = selectedCategories.some((selectedCat) =>
+          adCategories.some(
+            (adCat) =>
+              adCat.toLowerCase().includes(selectedCat.toLowerCase()) ||
+              selectedCat.toLowerCase().includes(adCat.toLowerCase()),
+          ),
+        );
+        if (!categoryMatch) return false;
+      }
 
-      // Проверяем, содержит ли категория объявления хотя бы одну из выбранных категорий
-      const adCategories = ad.category.split(",").map((cat) => cat.trim());
-      return selectedCategories.some((selectedCat) =>
-        adCategories.some(
-          (adCat) =>
-            adCat.toLowerCase().includes(selectedCat.toLowerCase()) ||
-            selectedCat.toLowerCase().includes(adCat.toLowerCase()),
-        ),
-      );
+      // Фильтр по валюте
+      if (selectedCurrency) {
+        return ad.price.includes(selectedCurrency);
+      }
+
+      return true;
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -515,6 +530,28 @@ const Index = () => {
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       {category}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t("currencies")}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {currencies.map((currency) => (
+                  <label
+                    key={currency}
+                    className="flex items-center space-x-2 cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={selectedCurrency === currency}
+                      onCheckedChange={() => handleCurrencyChange(currency)}
+                    />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {currency}
                     </span>
                   </label>
                 ))}
