@@ -245,7 +245,7 @@ const Index = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-6">
                     <div className="flex items-center space-x-2">
-                      <Icon name="Hash" size={16} className="text-gray-400" />
+                      <Icon name="Server" size={16} className="text-gray-400" />
                       <span className="text-sm font-medium text-gray-900">
                         {ad.serverName}
                       </span>
